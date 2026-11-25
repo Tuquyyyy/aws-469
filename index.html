@@ -88,13 +88,29 @@ ol.op li::before{content:attr(data-k);position:absolute;left:.6rem;top:.42rem;fo
 .res.r1{color:var(--okk)}.res.r0{color:var(--red)}
 .empty{padding:2rem 0;color:var(--mut)}
 .foot{padding:1.4rem 0 0;color:var(--mut);font-size:.8rem}
-@media(max-width:900px){html,body{height:auto}body{overflow:auto}.app{display:block;height:auto}aside{height:auto}nav{display:flex;overflow-x:auto;padding:.5rem 1rem;gap:.3rem;flex:none}nav a{flex:none;border:1px solid var(--line);white-space:nowrap}main{height:auto;overflow:visible;padding-bottom:5rem}.exam.on{position:fixed;left:0;right:0;bottom:0;z-index:6}.exam #exScore{flex-basis:auto}.tips ul{columns:1}}
+@media(max-width:900px){.app,body.side-off .app{display:block;height:100%}aside{position:fixed;top:0;bottom:0;left:-100%;width:min(88vw,360px);z-index:15;transition:left .25s;box-shadow:0 0 0 100vmax transparent}body.side-on aside{left:0}body.side-off aside{visibility:visible}.scrim{position:fixed;inset:0;background:#0007;z-index:14}body.side-on .scrim{display:block}main,body.side-off main{height:100%;padding:3.8rem 1rem 5rem}body:not(.side-on) .hb i{background:var(--ink)}body:not(.side-on) .hb i::before,body:not(.side-on) .hb i::after{transform:none}.exam.on{position:fixed;left:0;right:0;bottom:0;z-index:16}.exam #exScore{flex-basis:auto}.tips ul{columns:1}.top h1{font-size:1.6rem}}
+.hb{position:fixed;top:.75rem;left:.75rem;z-index:20;width:2.7rem;height:2.7rem;min-height:0;padding:0;display:grid;place-items:center;background:var(--bg);border:1px solid var(--ink)}
+.hb i,.hb i::before,.hb i::after{display:block;width:1.2rem;height:2px;background:var(--ink);position:relative;transition:transform .2s,background .2s}
+.hb i::before,.hb i::after{content:"";position:absolute;left:0}
+.hb i::before{top:-.4rem}.hb i::after{top:.4rem}
+body:not(.side-off) .hb i,body.side-on .hb i{background:transparent}
+body:not(.side-off) .hb i::before,body.side-on .hb i::before{transform:translateY(.4rem) rotate(45deg)}
+body:not(.side-off) .hb i::after,body.side-on .hb i::after{transform:translateY(-.4rem) rotate(-45deg)}
+.top h1{padding-left:3.3rem;font-size:1.9rem}
+.app{transition:grid-template-columns .25s}
+body.side-off .app{grid-template-columns:0 minmax(0,1fr)}
+body.side-off aside{visibility:hidden;border-right:0}
+body.side-off main{padding-left:max(4.6rem,clamp(16px,2.6vw,56px))}
+.scrim{display:none}
+@media(prefers-reduced-motion:reduce){.app,aside,.hb i,.hb i::before,.hb i::after{transition:none}}
 @media(prefers-reduced-motion:no-preference){.card{transition:border-color .15s}}
 </style>
 </head>
 <body>
+<button class="hb" id="hb" aria-label="Đóng/mở menu" aria-expanded="true" aria-controls="side"><i></i></button>
+<div class="scrim" id="scrim"></div>
 <div class="app">
-<aside>
+<aside id="side">
   <div class="top">
     <h1>Ôn thi AWS cuối kỳ</h1>
     <div class="bp" aria-label="Cấu trúc đề thi 50 câu, 60 phút">
@@ -217,6 +233,14 @@ $('#banks').addEventListener('click',e=>{const b=e.target.closest('button');if(!
 let tq;$('#q').addEventListener('input',e=>{clearTimeout(tq);tq=setTimeout(()=>{query=e.target.value.trim().toLowerCase();render()},200)});
 $('#vi').addEventListener('change',e=>document.body.classList.toggle('hidevi',!e.target.checked));
 $('#wrong').addEventListener('change',e=>{onlyWrong=e.target.checked;render()});
+const mob=()=>window.matchMedia('(max-width:900px)').matches;
+function syncHb(){const open=mob()?document.body.classList.contains('side-on'):!document.body.classList.contains('side-off');$('#hb').setAttribute('aria-expanded',String(open))}
+try{if(localStorage.getItem('aws-side')==='off')document.body.classList.add('side-off')}catch(e){}
+$('#hb').onclick=()=>{if(mob()){document.body.classList.toggle('side-on')}else{const off=document.body.classList.toggle('side-off');try{localStorage.setItem('aws-side',off?'off':'on')}catch(e){}}syncHb()};
+$('#scrim').onclick=()=>{document.body.classList.remove('side-on');syncHb()};
+$('#chips').addEventListener('click',e=>{if(e.target.closest('a')&&mob()){document.body.classList.remove('side-on');syncHb()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('side-on')){document.body.classList.remove('side-on');syncHb()}});
+window.addEventListener('resize',syncHb);syncHb();
 Promise.resolve(JSON.parse(document.getElementById('qdata').textContent)).then(d=>{D=d;d.items.forEach(x=>byId[x.id]=x);stats();render();
   if(location.hash){const t=document.getElementById(location.hash.slice(1));if(t)t.scrollIntoView()}
 }).catch(()=>{$('#main').innerHTML='<p class="empty">Không tải được dữ liệu câu hỏi.</p>'});
