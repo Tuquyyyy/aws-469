@@ -79,6 +79,8 @@ mark{background:var(--hl);color:inherit;font-weight:600;padding:0 .18em;border-r
 .vi{color:var(--mut);margin:.25rem 0 0;font-size:.92rem}
 .hidevi .vi,.hidevi .ovi{display:none}
 .nosrc .src{display:none}
+.notips .tips{display:none}
+.noexp .exp{display:none!important}
 .two{color:var(--red);font-weight:700}
 ol.op{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:700px){ol.op{grid-template-columns:minmax(0,1fr)}}
@@ -142,7 +144,7 @@ body.side-off main{margin-left:0;padding-left:max(4.6rem,clamp(16px,2.6vw,56px))
       <button data-b="sa" aria-pressed="false">SA</button>
     </div>
     <input type="search" id="q" placeholder="Tìm: S3, Macie, NAT…" aria-label="Tìm câu hỏi">
-    <div class="cks"><label class="ck"><input type="checkbox" id="vi" checked> Tiếng Việt</label><label class="ck"><input type="checkbox" id="wrong"> Chỉ câu sai</label><label class="ck"><input type="checkbox" id="src"> Hiện nguồn câu</label></div>
+    <div class="cks"><label class="ck"><input type="checkbox" id="vi" checked> Tiếng Việt</label><label class="ck"><input type="checkbox" id="wrong"> Chỉ câu sai</label><label class="ck"><input type="checkbox" id="src"> Hiện nguồn câu</label><label class="ck"><input type="checkbox" id="tipsT" checked> Bí kíp</label><label class="ck"><input type="checkbox" id="expT" checked> Giải thích</label></div>
     <div class="exam" id="examBar"><span id="timer">60:00</span><button id="exNew">Đề khác</button><button id="exEnd">Nộp bài</button><span id="exScore">0/50 đã làm</span></div>
   </div>
   <nav id="chips" aria-label="Nhóm chủ đề"></nav>
@@ -242,6 +244,7 @@ $('#exNew').onclick=newExam;$('#exEnd').onclick=endExam;
 $('#banks').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;bank=b.dataset.b;$('#banks').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render()});
 let tq;$('#q').addEventListener('input',e=>{clearTimeout(tq);tq=setTimeout(()=>{query=e.target.value.trim().toLowerCase();render()},200)});
 $('#vi').addEventListener('change',e=>document.body.classList.toggle('hidevi',!e.target.checked));
+for(const [id,cls,key] of [['tipsT','notips','aws-tips'],['expT','noexp','aws-exp']]){let on=true;try{on=localStorage.getItem(key)!=='off'}catch(e){}$('#'+id).checked=on;document.body.classList.toggle(cls,!on);$('#'+id).addEventListener('change',e=>{document.body.classList.toggle(cls,!e.target.checked);try{localStorage.setItem(key,e.target.checked?'on':'off')}catch(x){}})}
 {let on=false;try{on=localStorage.getItem('aws-src')==='on'}catch(e){}$('#src').checked=on;document.body.classList.toggle('nosrc',!on);$('#src').addEventListener('change',e=>{document.body.classList.toggle('nosrc',!e.target.checked);try{localStorage.setItem('aws-src',e.target.checked?'on':'off')}catch(x){}})}
 $('#wrong').addEventListener('change',e=>{onlyWrong=e.target.checked;render()});
 const mob=()=>window.matchMedia('(max-width:900px)').matches;
