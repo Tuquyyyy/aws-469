@@ -80,7 +80,8 @@ mark{background:var(--hl);color:inherit;font-weight:600;padding:0 .18em;border-r
 .hidevi .vi,.hidevi .ovi{display:none}
 .nosrc .src{display:none}
 .two{color:var(--red);font-weight:700}
-ol.op{grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr))}
+ol.op{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:700px){ol.op{grid-template-columns:minmax(0,1fr)}}
 ol.op{list-style:none;padding:0;margin:.6rem 0 0;display:grid;gap:.35rem}
 ol.op li{border:1px solid var(--line);padding:.42rem .6rem .42rem 2.3rem;position:relative;font-size:.92rem}
 ol.op li::before{content:attr(data-k);position:absolute;left:.6rem;top:.42rem;font-weight:700;color:var(--mut)}
