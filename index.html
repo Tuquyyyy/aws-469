@@ -70,7 +70,7 @@ mark{background:var(--hl);color:inherit;font-weight:600;padding:0 .18em;border-r
 .tips h3{font-size:1.15rem;margin:0 0 .3rem;display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap}
 .tips h3 small{font:500 .8rem Inter,sans-serif;color:var(--mut)}
 .tips h3 small b{color:var(--red)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,34rem),1fr));gap:.9rem;align-items:start;padding-bottom:.6rem}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:.9rem;align-items:start;padding-bottom:.6rem}
 .card{border:1px solid var(--line);background:var(--card);padding:.9rem 1rem}
 .meta{font-size:.8rem;color:var(--mut);display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.35rem}
 .tag{font-weight:700;color:#fff;padding:0 .35rem}
@@ -78,6 +78,9 @@ mark{background:var(--hl);color:inherit;font-weight:600;padding:0 .18em;border-r
 .en{font-weight:600;margin:0}
 .vi{color:var(--mut);margin:.25rem 0 0;font-size:.92rem}
 .hidevi .vi,.hidevi .ovi{display:none}
+.nosrc .src{display:none}
+.two{color:var(--red);font-weight:700}
+ol.op{grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr))}
 ol.op{list-style:none;padding:0;margin:.6rem 0 0;display:grid;gap:.35rem}
 ol.op li{border:1px solid var(--line);padding:.42rem .6rem .42rem 2.3rem;position:relative;font-size:.92rem}
 ol.op li::before{content:attr(data-k);position:absolute;left:.6rem;top:.42rem;font-weight:700;color:var(--mut)}
@@ -138,7 +141,7 @@ body.side-off main{margin-left:0;padding-left:max(4.6rem,clamp(16px,2.6vw,56px))
       <button data-b="sa" aria-pressed="false">SA</button>
     </div>
     <input type="search" id="q" placeholder="Tìm: S3, Macie, NAT…" aria-label="Tìm câu hỏi">
-    <div class="cks"><label class="ck"><input type="checkbox" id="vi" checked> Tiếng Việt</label><label class="ck"><input type="checkbox" id="wrong"> Chỉ câu sai</label></div>
+    <div class="cks"><label class="ck"><input type="checkbox" id="vi" checked> Tiếng Việt</label><label class="ck"><input type="checkbox" id="wrong"> Chỉ câu sai</label><label class="ck"><input type="checkbox" id="src"> Hiện nguồn câu</label></div>
     <div class="exam" id="examBar"><span id="timer">60:00</span><button id="exNew">Đề khác</button><button id="exEnd">Nộp bài</button><span id="exScore">0/50 đã làm</span></div>
   </div>
   <nav id="chips" aria-label="Nhóm chủ đề"></nav>
@@ -164,8 +167,8 @@ const byId={};
 function card(it,n){
   const ops=it.opts.map(([k,e,v])=>`<li data-k="${esc(k)}" class="${mode==='learn'&&it.key.includes(k)?'ok':''}">${esc(e)}${v&&v.trim()!==e.trim()?`<span class="ovi">${esc(v)}</span>`:''}</li>`).join('');
   const exp=[it.exp,it.note].filter(Boolean).map(esc).join('<br>');
-  const two=it.key.length>1?' · chọn 2':'';
-  return `<article class="card" data-id="${esc(it.id)}"><div class="meta">${n?`<b>Câu ${n}</b>`:''}<span class="tag ${it.bank}">${BN[it.bank]}</span><span>${esc(it.src)}${two}</span></div>
+  const two=it.key.length>1;
+  return `<article class="card" data-id="${esc(it.id)}"><div class="meta">${n?`<b>Câu ${n}</b>`:''}<span class="tag ${it.bank}">${BN[it.bank]}</span><span><span class="src">${esc(it.src)}</span>${two?`<b class="two">Chọn 2</b>`:''}</div>
   <p class="en">${esc(it.en)}</p>${it.vi?`<p class="vi">${esc(it.vi)}</p>`:''}
   <ol class="op">${ops}</ol><div class="res"></div><div class="exp">${exp}</div></article>`;
 }
@@ -238,6 +241,7 @@ $('#exNew').onclick=newExam;$('#exEnd').onclick=endExam;
 $('#banks').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;bank=b.dataset.b;$('#banks').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render()});
 let tq;$('#q').addEventListener('input',e=>{clearTimeout(tq);tq=setTimeout(()=>{query=e.target.value.trim().toLowerCase();render()},200)});
 $('#vi').addEventListener('change',e=>document.body.classList.toggle('hidevi',!e.target.checked));
+{let on=false;try{on=localStorage.getItem('aws-src')==='on'}catch(e){}$('#src').checked=on;document.body.classList.toggle('nosrc',!on);$('#src').addEventListener('change',e=>{document.body.classList.toggle('nosrc',!e.target.checked);try{localStorage.setItem('aws-src',e.target.checked?'on':'off')}catch(x){}})}
 $('#wrong').addEventListener('change',e=>{onlyWrong=e.target.checked;render()});
 const mob=()=>window.matchMedia('(max-width:900px)').matches;
 function syncHb(){const open=mob()?document.body.classList.contains('side-on'):!document.body.classList.contains('side-off');$('#hb').setAttribute('aria-expanded',String(open))}
